@@ -19,6 +19,7 @@ jobs:
         run: |
           echo "${DATA}" > file.txt
           sed -e '0,/^```plain text$/d' -e '/```$/,$d' -i file.txt
+          ghuser=$(sed -e ':a;N;$!ba;s/\n/ /g' -e '/github[[:space:]]*user[[:space:]]*/I!d'  -e "s/.*github[[:space:]]*user[[:space:]]*'\([^']*\)'.*/\1/I" file.txt)
 
           rm -rf mygpg
           mkdir -v -m 0700 mygpg
@@ -35,13 +36,18 @@ jobs:
           userid=$(gpg --homedir mygpg -k ${key} | grep -E "^uid[[:space:]].*\[" | sed -e 's|.*][[:space:]]*||' -e '/^[[:space:]]*$/d' | head -1)
           echo "primary USER: ${userid}"
           echo "Debian  USER: ${debuser}"
+          echo "GitHub issue owner: ${{ github.event.issue.user.login }}"
+          echo "GitHub claimed user: ${ghuser}"
+
           echo "verifying the signature..."
           gpg --homedir mygpg --verify file.txt
           echo "DEBUSER=${debuser}" >> $GITHUB_OUTPUT
           echo "USERID=${userid}" >> $GITHUB_OUTPUT
+          echo "GHUSER=${ghuser}" >> $GITHUB_OUTPUT
     outputs:
       deb-username: ${{ steps.openpgp-check.outputs.DEBUSER }}
       pgp-userid: ${{ steps.openpgp-check.outputs.USERID }}
+      gh-user: ${{ steps.openpgp-check.outputs.GHUSER }}
 
   decline:
     name: Decline membership
@@ -58,6 +64,22 @@ jobs:
 
             Therefore this issue is closed automatically.
             If you feel that this is unwarranted (e.g. because the auto-closing :robot: has a bug), please leave a comment.
+
+  decline-github:
+    name: Wrong GitHub user
+    if: always() && (needs.keycheck.outputs.gh-user != '') && (needs.keycheck.outputs.gh-user != github.event.issue.user.login )
+    runs-on: ubuntu-latest
+    needs: ["keycheck", "debuser", "otheremail"]
+    steps:
+      - name: Close issue
+        uses: peter-evans/close-issue@v2
+        with:
+          comment: |
+            Your GitHub login `${{ github.event.issue.user.login }}` does not match the username `${{ needs.keycheck.outputs.gh-user }}` in the form.
+
+            Therefore this issue is closed automatically.
+            If you feel that this is unwarranted (e.g. because the auto-closing :robot: has a bug), please leave a comment.
+            If you just mistyped your GitHub username, please open a new issue with the correct one.
 
   debuser:
     name: Debian Developer
