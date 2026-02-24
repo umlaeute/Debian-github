@@ -17,10 +17,10 @@ body:
          In order to make ensure that you are a [Debian Member](https://nm.debian.org/members/) and not a 3rd party
          trying to impersonate you, we would like to ask you to provide a *signed* membership request.
 
-         Something like the following
+         Something like the following (please manually add your GitHub account name):
 
          ~~~sh
-         echo "Please add me (Debian user '${DEBEMAIL%@*}') to the Debian GitHub organization" | gpg --clear-sign
+         echo "Please add me (Debian user '${DEBEMAIL%@*}', GitHub user '...') to the Debian GitHub organization [requested on $(date)]" | gpg --clear-sign
          ~~~
 
          If you want to provide additional information, just add it to the signed message (before signing it).
@@ -33,7 +33,7 @@ body:
         -----BEGIN PGP SIGNED MESSAGE-----
         Hash: SHA512
 
-        Please add me (Debian user 'root') to the Debian GitHub organization
+        Please add me (Debian user 'root', GitHub user 'octocat') to the Debian GitHub organization [requested on Wed Dec 21 06:30:35 2005 CET]
         -----BEGIN PGP SIGNATURE-----
 
         iQIzBAEBCAAdFiEEdAXnRVdICXNIABVttlAZxH96NvgFAmHoLcUACgkQtlAZx...
