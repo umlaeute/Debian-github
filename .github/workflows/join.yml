@@ -58,6 +58,8 @@ jobs:
       - name: Close issue
         uses: peter-evans/close-issue@v2
         with:
+          issue-number: ${{ github.event.issue.number }}
+          close-reason: not_planned
           comment: |
             It seems that the membership application was either not PGP signed at all, or signed with a key that is not currently in the Debian keyring (as offered by https://keyring.debian.org).
             The [Debian GitHub](https://github.com/Debian) organization is intended for [Debian Developers (DD)](https://wiki.debian.org/DebianDeveloper).
@@ -74,6 +76,8 @@ jobs:
       - name: Close issue
         uses: peter-evans/close-issue@v2
         with:
+          issue-number: ${{ github.event.issue.number }}
+          close-reason: not_planned
           comment: |
             Your GitHub login `${{ github.event.issue.user.login }}` does not match the username `${{ needs.keycheck.outputs.gh-user }}` in the form.
 
